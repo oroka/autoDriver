@@ -112,9 +112,9 @@ void initMotorController(void){
 	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTカウンタ開始（TGRA,TGRB,TGRC,TGRDを同時に）
 	
 	//7:モーター２用出力B2
-	//使用ポート	PA1(34)
-	PORTA.PDR.BIT.B1 = 1;
-	PORTA.PODR.BIT.B1 = 0;
+	//使用ポート	P47(CN2-56)
+	PORT4.PDR.BIT.B7 = 1;
+	PORT4.PODR.BIT.B7 = 0;
 	//8:GND（設定なし）
 }
 
