@@ -1,22 +1,22 @@
-ï»¿/*
- * æ¦‚è¦
- * ãƒ¢ãƒ¼ã‚¿ãƒ¼åˆ¶å¾¡
- * é›»æµæ–¹å‘ã«ã‚ˆã‚‹å›žè»¢æ–¹å‘ã®åˆ¶å¾¡ã¨PWMã«ã‚ˆã‚‹å›žè»¢æ•°ã®åˆ¶å¾¡
- * ãƒãƒ¼ãƒˆè¨­å®šï¼ˆRX631 48pinï¼‰
- * ä½¿ç”¨ãƒãƒ¼ãƒˆPA6ãƒ»PA4ãƒ»PA3ãƒ»PA1ï¼ˆå›žè»¢æ–¹å‘ï¼‰
- * åŒä¸Š    PB3ãƒ»PB5ï¼ˆå›žè»¢æ•°ï¼‰
- * å‹•ä½œæœªç¢ºèª
+/*
+ * ŠT—v
+ * ƒ‚[ƒ^[§Œä
+ * “d—¬•ûŒü‚É‚æ‚é‰ñ“]•ûŒü‚Ì§Œä‚ÆPWM‚É‚æ‚é‰ñ“]”‚Ì§Œä
+ * ƒ|[ƒgÝ’èiRX631 48pinj
+ * Žg—pƒ|[ƒgPA6EPA4EPA3EPA1i‰ñ“]•ûŒüj
+ * “¯ã    PB3EPB5i‰ñ“]”j
+ * “®ì–¢Šm”F
  */
 
 #include "iodefine.h"
 
 #ifndef FREQUENCY
-#define FREQUENCY 3000000//TGR(shortåž‹),PWM:64åˆ†å‘¨:46875count(1ç§’é–“)
+#define FREQUENCY 3000000//TGR(shortŒ^),PWM:64•ªŽü:46875count(1•bŠÔ)
 #define MAXTCNT 469//10ms
 #endif
 
 #ifndef MOTORSPEEDMAX
-#define MOTORSPEEDMAX 4
+#define MOTORSPEEDMAX 10
 #endif
 
 void initMotorController(void);
@@ -31,17 +31,17 @@ void mcTurnRight(void);
 void mcTrunLeft(void);
 
 //global value
-unsigned char motorSpeed;//ãƒ¢ãƒ¼ã‚¿ãƒ¼ã®å›žè»¢é€Ÿåº¦ã®æ®µéšŽæ•°
+unsigned char motorSpeed;//ƒ‚[ƒ^[‚Ì‰ñ“]‘¬“x‚Ì’iŠK”
 
 void initMotorController(void){
-	/* ä½¿ç”¨ãƒãƒ¼ãƒˆåˆæœŸåŒ– */
-	//1:VCC(è¨­å®šãªã—ï¼‰
-	//2:ãƒ¢ãƒ¼ã‚¿ãƒ¼ï¼‘ç”¨å‡ºåŠ›A1
-	//ä½¿ç”¨ãƒãƒ¼ãƒˆ	PA6(31)
+	/* Žg—pƒ|[ƒg‰Šú‰» */
+	//1:VCC(Ý’è‚È‚µj
+	//2:ƒ‚[ƒ^[‚P—po—ÍA1
+	//Žg—pƒ|[ƒg	PA6(31)
 	PORTA.PDR.BIT.B6 = 1;
 	PORTA.PODR.BIT.B6 = 0;
 	
-	//3:ãƒ¢ãƒ¼ã‚¿ãƒ¼ï¼‘ç”¨ãƒ‘ãƒ«ã‚¹å‡ºåŠ›
+	//3:ƒ‚[ƒ^[‚P—pƒpƒ‹ƒXo—Í
 	//MTIOC0A(26)
 	PORTB.PDR.BIT.B3 = 1;
 	PORTB.PMR.BIT.B3 = 1;
@@ -61,29 +61,29 @@ void initMotorController(void){
 	ICU.IER[0x11].BIT.IEN6 = 1;
 	ICU.IER[0x11].BIT.IEN7 = 1;
 	
-	MTU0.TCR.BYTE = 0x4B;//TGRBã®ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§TCNT=0, ç«‹ä¸‹ã‚Šã‚¨ãƒƒã‚¸ã§ã‚«ã‚¦ãƒ³ãƒˆ PCLK/64
-	MTU0.TMDR.BYTE = 0x02;//PWMãƒ¢ãƒ¼ãƒ‰ï¼‘
-	MTU0.TIORH.BYTE = 0x12;//A:åˆæœŸlow - ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§high, B:åˆæœŸlow - ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§low
+	MTU0.TCR.BYTE = 0x4B;//TGRB‚ÌƒRƒ“ƒyƒAƒ}ƒbƒ`‚ÅTCNT=0, —§‰º‚èƒGƒbƒW‚ÅƒJƒEƒ“ƒg PCLK/64
+	MTU0.TMDR.BYTE = 0x02;//PWMƒ‚[ƒh‚P
+	MTU0.TIORH.BYTE = 0x12;//A:‰Šúlow - ƒRƒ“ƒyƒAƒ}ƒbƒ`‚Åhigh, B:‰Šúlow - ƒRƒ“ƒyƒAƒ}ƒbƒ`‚Ålow
 	
-	MTU.TRWER.BIT.RWE = 0x1;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè§£é™¤
+	MTU.TRWER.BIT.RWE = 0x1;//ƒvƒƒeƒNƒg‰ðœ
 	//90%
-	MTU0.TGRA = MAXTCNT;//ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§HIGH(duty)
-	MTU0.TGRB = MAXTCNT;//ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§LOW(cycle)
-	MTU.TRWER.BIT.RWE = 0x0;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè¨­å®š
+	MTU0.TGRA = MAXTCNT;//ƒRƒ“ƒyƒAƒ}ƒbƒ`‚ÅHIGH(duty)
+	MTU0.TGRB = MAXTCNT;//ƒRƒ“ƒyƒAƒ}ƒbƒ`‚ÅLOW(cycle)
+	MTU.TRWER.BIT.RWE = 0x0;//ƒvƒƒeƒNƒgÝ’è
 	
-	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTã‚«ã‚¦ãƒ³ã‚¿é–‹å§‹
+	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTƒJƒEƒ“ƒ^ŠJŽn
 	
-	//4:ãƒ¢ãƒ¼ã‚¿ãƒ¼ï¼‘ç”¨å‡ºåŠ›A2
-	//ä½¿ç”¨ãƒãƒ¼ãƒˆ	PA4(32)
+	//4:ƒ‚[ƒ^[‚P—po—ÍA2
+	//Žg—pƒ|[ƒg	PA4(32)
 	PORTA.PDR.BIT.B4 = 1;
 	PORTA.PODR.BIT.B4 = 0;
 	
-	//5:ãƒ¢ãƒ¼ã‚¿ãƒ¼ï¼’ç”¨å‡ºåŠ›B1
-	//ä½¿ç”¨ãƒãƒ¼ãƒˆ	PA3(33)
+	//5:ƒ‚[ƒ^[‚Q—po—ÍB1
+	//Žg—pƒ|[ƒg	PA3(33)
 	PORTA.PDR.BIT.B3 = 1;
 	PORTA.PODR.BIT.B3 = 0;
 	
-	//6:ãƒ¢ãƒ¼ã‚¿ãƒ¼ï¼’ç”¨ãƒ‘ãƒ«ã‚¹å‡ºåŠ›
+	//6:ƒ‚[ƒ^[‚Q—pƒpƒ‹ƒXo—Í
 	//MTIOC2A(25)
 	PORTB.PDR.BIT.B5 = 1;
 	PORTB.PMR.BIT.B5 = 1;
@@ -94,69 +94,72 @@ void initMotorController(void){
 	MPC.PWPR.BIT.PFSWE = 0;
 	MPC.PWPR.BIT.B0WI = 1;
 	
-	MTU2.TCR.BYTE = 0x4B;//TGRBã®ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§TCNT=0, ç«‹ä¸‹ã‚Šã‚¨ãƒƒã‚¸ã§ã‚«ã‚¦ãƒ³ãƒˆ PCLK/64
-	MTU2.TMDR.BYTE = 0x02;//PWMãƒ¢ãƒ¼ãƒ‰1
-	MTU2.TIOR.BYTE = 0x12;//A:åˆæœŸlow - ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§high, B:åˆæœŸlow - ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§low
+	MTU2.TCR.BYTE = 0x4B;//TGRB‚ÌƒRƒ“ƒyƒAƒ}ƒbƒ`‚ÅTCNT=0, —§‰º‚èƒGƒbƒW‚ÅƒJƒEƒ“ƒg PCLK/64
+	MTU2.TMDR.BYTE = 0x02;//PWMƒ‚[ƒh1
+	MTU2.TIOR.BYTE = 0x12;//A:‰Šúlow - ƒRƒ“ƒyƒAƒ}ƒbƒ`‚Åhigh, B:‰Šúlow - ƒRƒ“ƒyƒAƒ}ƒbƒ`‚Ålow
 	
-	MTU.TRWER.BIT.RWE = 0x1;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè§£é™¤
+	MTU.TRWER.BIT.RWE = 0x1;//ƒvƒƒeƒNƒg‰ðœ
 	//90%
-	MTU2.TGRA = MAXTCNT;//ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§HIGH(duty)
-	MTU2.TGRB = MAXTCNT;//ã‚³ãƒ³ãƒšã‚¢ãƒžãƒƒãƒã§LOW(cycle)
-	MTU.TRWER.BIT.RWE = 0x0;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè¨­å®š
+	MTU2.TGRA = MAXTCNT;//ƒRƒ“ƒyƒAƒ}ƒbƒ`‚ÅHIGH(duty)
+	MTU2.TGRB = MAXTCNT;//ƒRƒ“ƒyƒAƒ}ƒbƒ`‚ÅLOW(cycle)
+	MTU.TRWER.BIT.RWE = 0x0;//ƒvƒƒeƒNƒgÝ’è
 	
 	ICU.IPR[150].BIT.IPR = 10;
 	ICU.IR[150].BIT.IR = 0;
 	ICU.IER[0x12].BIT.IEN6 = 1;
 	ICU.IER[0x12].BIT.IEN7 = 1;
 	
-	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTã‚«ã‚¦ãƒ³ã‚¿é–‹å§‹ï¼ˆTGRA,TGRB,TGRC,TGRDã‚’åŒæ™‚ã«ï¼‰
+	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTƒJƒEƒ“ƒ^ŠJŽniTGRA,TGRB,TGRC,TGRD‚ð“¯Žž‚Éj
 	
-	//7:ãƒ¢ãƒ¼ã‚¿ãƒ¼ï¼’ç”¨å‡ºåŠ›B2
-	//ä½¿ç”¨ãƒãƒ¼ãƒˆ	P47(CN2-56)
-	PORT4.PDR.BIT.B7 = 1;
-	PORT4.PODR.BIT.B7 = 0;
-	//8:GNDï¼ˆè¨­å®šãªã—ï¼‰
+	//7:ƒ‚[ƒ^[‚Q—po—ÍB2
+	//Žg—pƒ|[ƒg	PA1(34)
+	PORTA.PDR.BIT.B1 = 1;
+	PORTA.PODR.BIT.B1 = 0;
+	//8:GNDiÝ’è‚È‚µj
+	
+	mcSetSpeed(10);
 }
 
-//ãƒ¢ãƒ¼ã‚¿ãƒ¼åˆ¶å¾¡æ›´æ–°
+//
 void runMotorController(void){
-	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTã‚«ã‚¦ãƒ³ã‚¿é–‹å§‹
-	//MTU0.TGRA,MTU2.TGRAã‚’å¤‰æ›´ã§é€Ÿåº¦åˆ¶å¾¡(æœ€å¤§ã¯TGRBã®è¨­å®šå€¤469)
+	//MTU.TSTR.BIT.CST0 = 1;//MTU0-TCNTƒJƒEƒ“ƒ^ŠJŽn
+	//MTU0.TGRA,MTU2.TGRA‚ð•ÏX‚Å‘¬“x§Œä(Å‘å‚ÍTGRB‚ÌÝ’è’l469)
 }
 
-//é€Ÿåº¦è¨­å®š
+//‘¬“xÝ’è
 void mcSetSpeed(unsigned short speed){
-	if(speed < 1){
+	if(speed < 2){
 		mcStop();
 		return;
 	}
-	//TGRA, TGRCã‚’è¨­å®š
+	//TGRA, TGRC‚ðÝ’è
 	if(0 <= speed && speed <= MOTORSPEEDMAX){
+		motorSpeed = speed;
 		MTU.TSTR.BIT.CST0 = 0;
 		MTU.TSTR.BIT.CST2 = 0;
-		MTU.TRWER.BIT.RWE = 0x1;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè§£é™¤
+		MTU.TRWER.BIT.RWE = 0x1;//ƒvƒƒeƒNƒg‰ðœ
 		MTU0.TGRA = MTU2.TGRA = 0.1 * (MOTORSPEEDMAX - motorSpeed) * MAXTCNT + 1;
-		MTU.TRWER.BIT.RWE = 0x0;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè¨­å®š
+		MTU.TRWER.BIT.RWE = 0x0;//ƒvƒƒeƒNƒgÝ’è
 		MTU.TSTR.BIT.CST0 = 1;
 		MTU.TSTR.BIT.CST2 = 1;
 	}
 }
 
-//é€Ÿåº¦ä¸Šæ˜‡
+//‘¬“xã¸
 void mcSpeedUp(void){
 	if(motorSpeed < MOTORSPEEDMAX){
 		motorSpeed++;
 		MTU.TSTR.BIT.CST0 = 0;
 		MTU.TSTR.BIT.CST2 = 0;
-		MTU.TRWER.BIT.RWE = 0x1;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè§£é™¤
+		MTU.TRWER.BIT.RWE = 0x1;//ƒvƒƒeƒNƒg‰ðœ
 		MTU0.TGRA = MTU2.TGRA = 0.1 * (MOTORSPEEDMAX - motorSpeed) * MAXTCNT + 1;
-		MTU.TRWER.BIT.RWE = 0x0;//ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè¨­å®š
+		MTU.TRWER.BIT.RWE = 0x0;//ƒvƒƒeƒNƒgÝ’è
 		MTU.TSTR.BIT.CST0 = 1;
 		MTU.TSTR.BIT.CST2 = 1;
 	}
 }
 
-//é€Ÿåº¦ä½Žä¸‹
+//‘¬“x’á‰º
 void mcSpeedDown(void){
 	if(0 < motorSpeed){
 		motorSpeed--;
@@ -179,24 +182,24 @@ void mcStop(void){
 	MTU.TSTR.BIT.CST2 = 0;
 }
 
-//é †é€
+//‡‘—
 void mcGoStraight(void){
 	//
-	PORTA.PODR.BIT.B6 = 0;
-	PORTA.PODR.BIT.B4 = 1;
-	PORTA.PODR.BIT.B3 = 0;
-	PORTA.PODR.BIT.B1 = 1;
-}
-
-//é€†èµ°
-void mcGoToBack(void){
 	PORTA.PODR.BIT.B6 = 1;
 	PORTA.PODR.BIT.B4 = 0;
 	PORTA.PODR.BIT.B3 = 1;
 	PORTA.PODR.BIT.B1 = 0;
 }
 
-//å³å›žè»¢
+//‹t‘–
+void mcGoToBack(void){
+	PORTA.PODR.BIT.B6 = 0;
+	PORTA.PODR.BIT.B4 = 1;
+	PORTA.PODR.BIT.B3 = 0;
+	PORTA.PODR.BIT.B1 = 1;
+}
+
+//‰E‰ñ“]
 void mcTurnRight(void){
 	PORTA.PODR.BIT.B6 = 0;
 	PORTA.PODR.BIT.B4 = 1;
@@ -204,7 +207,7 @@ void mcTurnRight(void){
 	PORTA.PODR.BIT.B1 = 0;
 }
 
-//å·¦å›žè»¢
+//¶‰ñ“]
 void mcTurnLeft(void){
 	PORTA.PODR.BIT.B6 = 1;
 	PORTA.PODR.BIT.B4 = 0;

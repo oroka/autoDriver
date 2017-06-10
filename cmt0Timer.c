@@ -1,4 +1,5 @@
-ï»¿#include "iodefine.h"
+#include "iodefine.h"
+#include "vect.h"
 
 unsigned short cmt0_counter = 0;
 
@@ -7,16 +8,16 @@ void initCMT0(void){
 	SYSTEM.MSTPCRA.BIT.MSTPA15 = 0;//CMT0,1
 	SYSTEM.PRCR.WORD = 0xA500;
 	
-	//CMT0ã®å‹•ä½œåœæ­¢
+	//CMT0‚Ì“®ì’â~
 	CMT.CMSTR0.BIT.STR0 = 0;
 	
 	CMT0.CMCR.BIT.CMIE = 0x01;
-	CMT0.CMCR.BIT.CKS = 0x00;//8åˆ†å‘¨ãƒ»32åˆ†å‘¨ãƒ»128åˆ†å‘¨ãƒ»512åˆ†å‘¨
+	CMT0.CMCR.BIT.CKS = 0x03;//8•ªüE32•ªüE128•ªüE512•ªü
 	
 	CMT0.CMCNT = 0;
 	
-	//192MHz/2/8 = 12000000
-	CMT0.CMCOR = 12 - 1;// 1usã”ã¨ã«å‰²è¾¼ã¿
+	//50MHz/2/512 = 48828
+	CMT0.CMCOR = 49 - 1;// 1ms‚²‚Æ‚ÉŠ„‚İ
 	
 	ICU.IPR[4].BYTE = 10;
 	ICU.IER[3].BIT.IEN4 = 1;
@@ -37,7 +38,7 @@ void clearCMT0Counter(void){
 void cmt0timer(unsigned short time){
 	cmt0_counter = 0;
 	CMT.CMSTR0.BIT.STR0 = 1;
-	while(cmt0_counter < time) ;
+	while(cmt0_counter < time);
 	CMT.CMSTR0.BIT.STR0 = 0;
 	return;
 }

@@ -33,30 +33,29 @@ int initSCI12(void){
 	MPC.PWPR.BIT.PFSWE = 0;
 	MPC.PWPR.BIT.B0WI = 1;
 	
-	SCI12.SCR.BIT.CKE = 0;//内蔵ボーレート使用
+	SCI12.SCR.BIT.CKE = 0;
 	
 	SCI12.SIMR1.BIT.IICM = 0;
 	SCI12.SPMR.BIT.CKPH = 0;
 	SCI12.SPMR.BIT.CKPOL = 0;
 	
-	//SMR,SCMR,SEMRレジスタに送信・受信フォーマットを設定
-	SCI12.SMR.BIT.CKS = 0x01;//クロック分周率PCLK/4
-	SCI12.SMR.BIT.MP = 0;//マルチプロセッサ通信機能禁止０、許可１
-	SCI12.SMR.BIT.STOP = 0;//1ストップビット
-	SCI12.SMR.BIT.PM = 0;//偶数パリティで送受信
-	SCI12.SMR.BIT.PE = 0;//パリティビットなし
-	SCI12.SMR.BIT.CHR = 0;//データ長8ビットで送受信０、7ビット１
-	SCI12.SMR.BIT.CM = 0;//調歩同期式モードで動作0,クロック同期モード１
+	SCI12.SMR.BIT.CKS = 0x01;
+	SCI12.SMR.BIT.MP = 0;
+	SCI12.SMR.BIT.STOP = 0;
+	SCI12.SMR.BIT.PM = 0;
+	SCI12.SMR.BIT.PE = 0;
+	SCI12.SMR.BIT.CHR = 0;
+	SCI12.SMR.BIT.CM = 0;
 	
-	SCI12.SCMR.BIT.SMIF = 0;//シリアルコミュニケーションインタフェースモード０
-	SCI12.SCMR.BIT.SINV = 0;//TDRレジスタの内容をそのまま送信、受信データをそのままRDRレジスタに格納0,反転１
-	SCI12.SCMR.BIT.SDIR = 0;//LSBファーストで送受信
+	SCI12.SCMR.BIT.SMIF = 0;
+	SCI12.SCMR.BIT.SINV = 0;
+	SCI12.SCMR.BIT.SDIR = 0;
 	
-	SCI12.SEMR.BIT.ACS0 = 0;//外部クロック入力0,TMRクロック入力1
-	SCI12.SEMR.BIT.ABCS = 0;//16サイクル1ビットの転送レート、8サイクル1ビットの転送レート
-	SCI12.SEMR.BIT.NFEN = 0;//RXD入力信号ノイズ除去機能無効0,有効1
+	SCI12.SEMR.BIT.ACS0 = 0;
+	SCI12.SEMR.BIT.ABCS = 0;
+	SCI12.SEMR.BIT.NFEN = 0;
 	
-	SCI12.BRR = 38;//48mhz/64/2/9600-1
+	SCI12.BRR = 20 -1;//38;//48mhz/64/2/9600-1
 	
 	SCI12.SCR.BIT.TEIE = 0;
 	SCI12.SCR.BIT.MPIE = 0;
@@ -72,11 +71,35 @@ int initSCI12(void){
 	return 0;
 }
 
-/* 接続先パラメータ取得 */
+void clearSCI12ErrorFlag(void){
+	char errorValue;
+	SCI12.SCR.BIT.TE = 0;
+	while(SCI12.SCR.BIT.TE == 1) ;
+	errorValue = SCI12.SSR.BIT.ORER;
+	SCI12.SSR.BIT.ORER = 0;
+	while(SCI12.SSR.BIT.ORER == 1) ;
+	errorValue = SCI12.SSR.BIT.FER;
+	SCI12.SSR.BIT.FER = 0;
+	while(SCI12.SSR.BIT.FER == 1) ;
+	errorValue = SCI12.SSR.BIT.PER;
+	SCI12.SSR.BIT.PER = 0;
+	while(SCI12.SSR.BIT.PER == 1);
+	
+	errorValue = SCI12.RDR;
+}
+
+void enableSCI12(void){
+	SCI12.SCR.BIT.TEIE = 0;
+	SCI12.SCR.BIT.MPIE = 0;
+	SCI12.SCR.BIT.RE = 1;
+	SCI12.SCR.BIT.TE = 1;
+	SCI12.SCR.BIT.RIE = 1;
+	SCI12.SCR.BIT.TIE = 0;
+}
+
 int xbee_get_param(unsigned char* addr){
 	return xbee_send_type17(addr, "IS", 2);
 }
-/* 接続先出力設定 */
 //ON
 int xbee_output_high(unsigned char* addr, unsigned char* port){
 	return xbee_send_type17(addr, port, 1);
@@ -85,7 +108,6 @@ int xbee_output_high(unsigned char* addr, unsigned char* port){
 int xbee_output_low(unsigned char* addr, unsigned char* port){
 	return xbee_send_type17(addr, port, 0);
 }
-/* フレームタイプ１７送信用関数 */
 int xbee_send_type17(unsigned char* addr, unsigned char* command, unsigned char param){
 	unsigned char uc = 0;
 	unsigned char lnum = 0;
@@ -115,19 +137,17 @@ int xbee_send_type17(unsigned char* addr, unsigned char* command, unsigned char 
 	comp_data[lnum] = xbee_checksum(comp_data, 16);
 	
 	for(uc=0; uc<=lnum; uc++){
-		while(XBEE_SCI.SSR.BIT.TEND == 0);//とりあえずSCI12（#defineで置き換えて変更しやすくする)
+		while(XBEE_SCI.SSR.BIT.TEND == 0);
 		XBEE_SCI.TDR = comp_data[uc];
 	}
 	
 	return 0;
 }
 
-//データ送信用関数
 int xbee_send_data(unsigned char* addr, unsigned char* data){
 	return xbee_send_type10(addr, data);
 }
 
-//フレームタイプ１０送信用関数
 int xbee_send_type10(unsigned char* addr, unsigned char* data){
 	unsigned char uc = 0;
 	unsigned char comp_data[256];
@@ -153,12 +173,10 @@ int xbee_send_type10(unsigned char* addr, unsigned char* data){
 		while(XBEE_SCI.SSR.BIT.TEND == 0);
 		XBEE_SCI.TDR = comp_data[uc];
 	}
-	//返答パケットはフレームタイプ8B
 	
 	return 0;
 }
 
-/* 文字列の長さを返す */
 int xbee_strlen(unsigned char* chrs){
 	unsigned short length = 0;
 	while(*chrs++ != '\0'){
@@ -167,7 +185,6 @@ int xbee_strlen(unsigned char* chrs){
 	return length;
 }
 
-/* チェックサム生成 */
 int xbee_checksum(unsigned char* data, unsigned short length){
 	unsigned char checksum = 0;
 	unsigned char uc;

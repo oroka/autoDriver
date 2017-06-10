@@ -29,4 +29,6 @@ typedef struct car_status {
 	enum Motor_Mode pre_motor_mode;
 } CAR_STATUS;
 
+unsigned char SCI12_RXI12_INTERRUPT = 0;
+
 #endif
