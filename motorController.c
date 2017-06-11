@@ -182,8 +182,12 @@ unsigned char mcSpeedDown(void){
 }
 
 void mcStop(void){
-	MTU.TSTR.BIT.CST0 = 0;
-	MTU.TSTR.BIT.CST2 = 0;
+	/*MTU.TSTR.BIT.CST0 = 0;
+	MTU.TSTR.BIT.CST2 = 0;*/
+	PORTA.PODR.BIT.B6 = 0;
+	PORTA.PODR.BIT.B4 = 0;
+	PORTA.PODR.BIT.B3 = 0;
+	PORTA.PODR.BIT.B1 = 0;
 }
 
 //èáëó
