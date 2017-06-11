@@ -21,9 +21,9 @@
 
 void initMotorController(void);
 void runMotorController(void);
-void mcSetSpeed(unsigned short);
-void mcSpeedUp(void);
-void mcSpeedDown(void);
+unsigned char mcSetSpeed(unsigned char);
+unsigned char mcSpeedUp(void);
+unsigned char mcSpeedDown(void);
 void mcStop(void);
 void mcGoStraight(void);
 void mcGoToBack(void);
@@ -127,13 +127,13 @@ void runMotorController(void){
 }
 
 //ë¨ìxê›íË
-void mcSetSpeed(unsigned short speed){
+unsigned char mcSetSpeed(unsigned char speed){
 	if(speed < 2){
 		mcStop();
-		return;
+		return 0;
 	}
 	//TGRA, TGRCÇê›íË
-	if(0 <= speed && speed <= MOTORSPEEDMAX){
+	if(0.0 <= speed && speed <= MOTORSPEEDMAX){
 		motorSpeed = speed;
 		MTU.TSTR.BIT.CST0 = 0;
 		MTU.TSTR.BIT.CST2 = 0;
@@ -143,10 +143,12 @@ void mcSetSpeed(unsigned short speed){
 		MTU.TSTR.BIT.CST0 = 1;
 		MTU.TSTR.BIT.CST2 = 1;
 	}
+	
+	return motorSpeed;
 }
 
 //ë¨ìxè„è∏
-void mcSpeedUp(void){
+unsigned char mcSpeedUp(void){
 	if(motorSpeed < MOTORSPEEDMAX){
 		motorSpeed++;
 		MTU.TSTR.BIT.CST0 = 0;
@@ -157,17 +159,18 @@ void mcSpeedUp(void){
 		MTU.TSTR.BIT.CST0 = 1;
 		MTU.TSTR.BIT.CST2 = 1;
 	}
+	return motorSpeed;
 }
 
 //ë¨ìxí·â∫
-void mcSpeedDown(void){
+unsigned char mcSpeedDown(void){
 	if(0 < motorSpeed){
 		motorSpeed--;
 		MTU.TSTR.BIT.CST0 = 0;
 		MTU.TSTR.BIT.CST2 = 0;
-		if(motorSpeed > 1){
+		if(motorSpeed > 2){
 			MTU.TRWER.BIT.RWE = 0x1;
-			MTU0.TGRA = MTU2.TGRA = (MOTORSPEEDMAX - motorSpeed) * MAXTCNT + 1;
+			MTU0.TGRA = MTU2.TGRA = 0.1 * (MOTORSPEEDMAX - motorSpeed) * MAXTCNT + 1;
 			MTU.TRWER.BIT.RWE = 0x0;
 			MTU.TSTR.BIT.CST0 = 1;
 			MTU.TSTR.BIT.CST2 = 1;
@@ -175,6 +178,7 @@ void mcSpeedDown(void){
 			mcStop();
 		}
 	}
+	return motorSpeed;
 }
 
 void mcStop(void){

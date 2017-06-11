@@ -54,6 +54,7 @@ void main(void)
 		
 		//シリアル割込みが入った場合(intprg.c内Excep_SCI12_RXI12）
 		//パソコンからのコマンド（W:前進,S:後退,A:左回転,D:右回転）で操作
+		//XBeeはATモード(透過)
 		if(SCI12_RXI12_INTERRUPT){
 			unsigned char str = SCI12.RDR;
 			switch(str){

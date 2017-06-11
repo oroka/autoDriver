@@ -29,6 +29,9 @@ typedef struct car_status {
 	enum Motor_Mode pre_motor_mode;
 } CAR_STATUS;
 
-unsigned char SCI12_RXI12_INTERRUPT = 0;
+//hファイルにはCファイルに実態のあるグローバル変数にextern指定子をつけて宣言する
+extern unsigned char SCI12_RXI12_INTERRUPT;
+extern unsigned char MANUAL_SPEED_FLAG;
+extern unsigned char manual_motor_speed;
 
 #endif
