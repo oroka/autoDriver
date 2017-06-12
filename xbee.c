@@ -97,6 +97,10 @@ void enableSCI12(void){
 	SCI12.SCR.BIT.TIE = 0;
 }
 
+int xbee_get_db(unsigned char* addr){
+	return xbee_send_type17(addr, "DB", 2);
+}
+
 int xbee_get_param(unsigned char* addr){
 	return xbee_send_type17(addr, "IS", 2);
 }
@@ -114,7 +118,7 @@ int xbee_send_type17(unsigned char* addr, unsigned char* command, unsigned char 
 	unsigned char comp_data[256];
 	comp_data[0] = 0x7E;
 	comp_data[1] = 0x00;
-	comp_data[2] = 0x10;
+	comp_data[2] = 0x0F;
 	comp_data[3] = 0x17;
 	comp_data[4] = 0x01;
 	for(uc=0; uc<8; uc++){
@@ -134,7 +138,7 @@ int xbee_send_type17(unsigned char* addr, unsigned char* command, unsigned char 
 	}else{
 		lnum = 18;
 	}
-	comp_data[lnum] = xbee_checksum(comp_data, 16);
+	comp_data[lnum] = xbee_checksum(comp_data, 18);
 	
 	for(uc=0; uc<=lnum; uc++){
 		while(XBEE_SCI.SSR.BIT.TEND == 0);
